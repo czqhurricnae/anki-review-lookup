@@ -67,8 +67,8 @@ def on_webview_will_set_content(web_content: Any, context):
                 background: white !important;
                 border: 1px solid #b7b7b7 !important;
                 box-shadow: 2px 2px 5px #9e9e9e;
-                max-width: 370px;
-                max-height: 500px;
+                max-width: 1850px;
+                max-height: 1500px;
                 display: flex;
                 flex-direction: column;
                 box-sizing: border-box;
@@ -250,10 +250,14 @@ def expanded_on_bridge_cmd(handled: Tuple[bool, Any], cmd: str, self: Any) -> Tu
 
         tooltip_id = int(cmd.split()[1])
         query      = " ".join(cmd.split()[2:])
-        notes      = run_search(query)
-        notes      = [[n.id, prettify_search_result_html(n.text, query, config["should_highlight"])] for n in notes]
+        if len(query) >= 3:
+            nids       = aqt.mw.col.find_notes(query)
+            notes      = [[nid, prettify_search_result_html("<hr/>".join(aqt.mw.col.get_note(nid).values()), query, config["should_highlight"], False)] for nid in nids]
+            if not notes:
+                notes = run_search(query)
+                notes = [[n.id, prettify_search_result_html(n.text, query, config["should_highlight"], True)] for n in notes]
 
-        self.web.page().runJavaScript(f"setTooltipSearchResults({tooltip_id}, {json.dumps(notes)})")
+            self.web.page().runJavaScript(f"setTooltipSearchResults({tooltip_id}, {json.dumps(notes)})")
         return (True, None)
 
     elif cmd.startswith("rev-tt-edit "):
@@ -269,11 +273,14 @@ def expanded_on_bridge_cmd(handled: Tuple[bool, Any], cmd: str, self: Any) -> Tu
 
         if not results:
             aqt.utils.showInfo("Error: no [sound:XXX]-element found")
+            return (True, None)
         if len(results) == 1:
             aqt.sound.av_player.play_file(results[0])
+            return (True, None)
         for result in results:
             aqt.utils.showInfo("playing: " + result)
             aqt.sound.av_player.play_file(result)
+        return (True, None)
 
     return handled
 
