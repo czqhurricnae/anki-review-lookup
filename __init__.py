@@ -3,6 +3,7 @@ import aqt
 import time
 import json
 import os
+import re
 from typing import List, Any, Tuple
 from .analysis import *
 from .document import Document
@@ -26,7 +27,7 @@ def setup_addon():
     global tooltip_script, config
     tooltip_script  = get_tooltip_script()
     config          = mw.addonManager.getConfig(__name__)
-    
+
     # use the profile did open hook, because the collection is initialized then already (otherwise we will get a null ref on mw.col)
     gui_hooks.profile_did_open.append(build_index)
 
@@ -100,7 +101,7 @@ def on_webview_will_set_content(web_content: Any, context):
                 border-color: #eaeaea !important;
                 background: #f9f9f9 !important;
                 position: relative;
-            } 
+            }
             .rev-tooltip__scroll > .sr:first-child {
                 margin-top: 0;
             }
@@ -167,6 +168,12 @@ def on_webview_will_set_content(web_content: Any, context):
                 margin-left: 5px;
                 cursor: pointer;
             }
+            .rev-tooltip__playsound {
+                border-bottom: 1px solid #e4e4e4;
+                margin-bottom: 10px !important;
+                display: flex;
+                justify-content: center;
+            }
             .rev-tooltip__edit {
                 position: absolute;
                 bottom: 5px;
@@ -221,7 +228,7 @@ def on_webview_will_set_content(web_content: Any, context):
 
         {tooltip_script}</script>"""
 
-def on_did_show_question(card: Any): 
+def on_did_show_question(card: Any):
 
     global current_nid
     current_nid = card.nid
@@ -243,8 +250,8 @@ def expanded_on_bridge_cmd(handled: Tuple[bool, Any], cmd: str, self: Any) -> Tu
 
         tooltip_id = int(cmd.split()[1])
         query      = " ".join(cmd.split()[2:])
-        notes       = run_search(query)
-        notes       = [[n.id, prettify_search_result_html(n.text, query, config["should_highlight"])] for n in notes]
+        notes      = run_search(query)
+        notes      = [[n.id, prettify_search_result_html(n.text, query, config["should_highlight"])] for n in notes]
 
         self.web.page().runJavaScript(f"setTooltipSearchResults({tooltip_id}, {json.dumps(notes)})")
         return (True, None)
@@ -254,11 +261,23 @@ def expanded_on_bridge_cmd(handled: Tuple[bool, Any], cmd: str, self: Any) -> Tu
         browser.form.searchEdit.lineEdit().setText(f"nid:{cmd.split()[1]}")
         browser.onSearchActivated()
         return (True, None)
-    
-    
+
+    elif cmd.startswith("rev-tt-playsound "):
+        tooltip_id = int(cmd.split()[1])
+        notes      = aqt.mw.col.getNote(tooltip_id).items()
+        results    = re.findall('\[sound:(.+?\..+?)\]', str(notes))
+
+        if not results:
+            aqt.utils.showInfo("Error: no [sound:XXX]-element found")
+        if len(results) == 1:
+            aqt.sound.av_player.play_file(results[0])
+        for result in results:
+            aqt.utils.showInfo("playing: " + result)
+            aqt.sound.av_player.play_file(result)
+
     return handled
 
-def run_search(query: str) -> List[Any]: 
+def run_search(query: str) -> List[Any]:
 
     if len(query.strip()) == 0:
         return []
