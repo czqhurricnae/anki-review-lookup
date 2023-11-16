@@ -103,7 +103,7 @@ window.renderNewTooltip = function(query) {
     let loader = query.length < REV_SEARCH_MAX_QUERY_LENGTH ? "Searching ..." : "Sorry, query is too long.";
     tooltip.innerHTML = `<div class='rev-tooltip__search'>
                             <svg class='rev-tooltip__search_icn' width="24" height="24" viewBox="0 0 24 24" fill="none" > <path fill-rule="evenodd" clip-rule="evenodd" d="M18.319 14.4326C20.7628 11.2941 20.542 6.75347 17.6569 3.86829C14.5327 0.744098 9.46734 0.744098 6.34315 3.86829C3.21895 6.99249 3.21895 12.0578 6.34315 15.182C9.22833 18.0672 13.769 18.2879 16.9075 15.8442C16.921 15.8595 16.9351 15.8745 16.9497 15.8891L21.1924 20.1317C21.5829 20.5223 22.2161 20.5223 22.6066 20.1317C22.9971 19.7412 22.9971 19.1081 22.6066 18.7175L18.364 14.4749C18.3493 14.4603 18.3343 14.4462 18.319 14.4326ZM16.2426 5.28251C18.5858 7.62565 18.5858 11.4246 16.2426 13.7678C13.8995 16.1109 10.1005 16.1109 7.75736 13.7678C5.41421 11.4246 5.41421 7.62565 7.75736 5.28251C10.1005 2.93936 13.8995 2.93936 16.2426 5.28251Z" fill="currentColor" /> </svg>
-                            <input type='text' id='rev-tooltip__search_${id}' 
+                            <input type='text' id='rev-tooltip__search_${id}'
                                 onkeyup='tooltipSearch(${id}, this.value)' onmouseup='event.preventDefault(); event.stopPropagation();' onclick='event.preventDefault(); event.stopPropagation();' placeholder='Search'/>
                         </div>
                         <div class='rev-tooltip__scroll' id='rev-tooltip__scroll_${id}'>${loader}</div>
@@ -150,9 +150,7 @@ window.setTooltipSearchResults = function(tooltipId, results) {
         html = '<center class="no-results">Sorry, found no search results.</center>'
     } else {
         for (let r of results) {
-            html += `<div class='sr'>${r[1]}
-                <svg class="rev-tooltip__edit" onclick="pycmd('rev-tt-edit ${r[0]}')" width="14" height="14" viewBox="0 0 512 512"><path d="M362.7 19.32C387.7-5.678 428.3-5.678 453.3 19.32L492.7 58.75C517.7 83.74 517.7 124.3 492.7 149.3L444.3 197.7L314.3 67.72L362.7 19.32zM421.7 220.3L188.5 453.4C178.1 463.8 165.2 471.5 151.1 475.6L30.77 511C22.35 513.5 13.24 511.2 7.03 504.1C.8198 498.8-1.502 489.7 .976 481.2L36.37 360.9C40.53 346.8 48.16 333.9 58.57 323.5L291.7 90.34L421.7 220.3z"/></svg>
-            </div>`;
+            html += `<div class='sr'><svg class="rev-tooltip__playsound" onclick="pycmd('rev-tt-playsound ${r[0]}')"  width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 16V8H6L11 4V20L6 16H3Z" stroke="#000000" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 9C13 9 15 9.5 15 12C15 14.5 13 15 13 15" stroke="#000000" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 7C15 7 18 7.83333 18 12C18 16.1667 15 17 15 17" stroke="#000000" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 5C17 5 21 6.16667 21 12C21 17.8333 17 19 17 19" stroke="#000000" stroke-linecap="round" stroke-linejoin="round"/></svg>${r[1]}<svg class="rev-tooltip__edit" onclick="pycmd('rev-tt-edit ${r[0]}')" width="14" height="14" viewBox="0 0 512 512"><path d="M362.7 19.32C387.7-5.678 428.3-5.678 453.3 19.32L492.7 58.75C517.7 83.74 517.7 124.3 492.7 149.3L444.3 197.7L314.3 67.72L362.7 19.32zM421.7 220.3L188.5 453.4C178.1 463.8 165.2 471.5 151.1 475.6L30.77 511C22.35 513.5 13.24 511.2 7.03 504.1C.8198 498.8-1.502 489.7 .976 481.2L36.37 360.9C40.53 346.8 48.16 333.9 58.57 323.5L291.7 90.34L421.7 220.3z"/></div>`;
         }
     }
     tooltip_scroll.innerHTML = html;
@@ -161,7 +159,7 @@ window.setTooltipSearchResults = function(tooltipId, results) {
         let tooltip = document.getElementById('rev-tooltip_' + tooltipId);
         let sbox = tooltip.getBoundingClientRect();
         if (sbox.top < 0) {
-            tooltip.style.maxHeight = Math.max(100, tooltip.offsetHeight + sbox.top) + 'px'; 
+            tooltip.style.maxHeight = Math.max(100, tooltip.offsetHeight + sbox.top) + 'px';
         }
         if (typeof(window.MathJax) !== 'undefined' && window.MathJax.typeset) {
             window.MathJax.typeset();
@@ -188,7 +186,7 @@ window.onTooltipBottomBarMouseup = function(e) {
     e.stopPropagation();
 }
 
-/* zooming */ 
+/* zooming */
 
 window.tooltipZoomOut = function(event, id) {
     let tooltipScrollBody = document.getElementById('rev-tooltip__scroll_'+id);
@@ -231,7 +229,7 @@ window.initResize = function(e, id) {
     if (r.el.style.bottom && r.el.style.bottom.length) {
         r.el.style.top = r.el.getBoundingClientRect().top + 'px';
         r.el.style.bottom = null;
-    } 
+    }
     r.startX = e.clientX;
     r.startY = e.clientY;
     r.startWidth = parseInt(document.defaultView.getComputedStyle(tooltip).width, 10);
@@ -251,7 +249,7 @@ window.doResizeDrag = function(e) {
 window.stopResizeDrag = function(e) {
     e.preventDefault();
     e.stopPropagation();
-    document.documentElement.removeEventListener('mousemove', doResizeDrag, false);    
+    document.documentElement.removeEventListener('mousemove', doResizeDrag, false);
     document.documentElement.removeEventListener('mouseup', stopResizeDrag, false);
     _tooltipResize.resizing = false;
 }
