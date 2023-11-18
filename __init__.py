@@ -249,7 +249,7 @@ def expanded_on_bridge_cmd(handled: Tuple[bool, Any], cmd: str, self: Any) -> Tu
     if cmd.startswith("rev-search "):
         tooltip_id = int(cmd.split()[1])
         query      = " ".join(cmd.split()[2:])
-        if len(query) >= 3:
+        if (query.isascii() and len(query) >= 3) or (not query.isascii() and len(query) >= 2):
             nids       = aqt.mw.col.find_notes(query)
             notes      = [[nid, prettify_search_result_html("<hr/>".join(filter(None, aqt.mw.col.get_note(nid).values())), query, config["should_highlight"], False)] for nid in nids]
             if not notes:
